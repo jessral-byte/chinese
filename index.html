@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
@@ -11,7 +10,6 @@
 <body class="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 text-gray-800">
 
 <!-- Header -->
-
 <header class="flex justify-center mt-10 mb-6">
   <div class="bg-white/80 backdrop-blur shadow-xl rounded-3xl px-8 py-6 text-center border border-white max-w-md w-full">
     <h1 class="text-2xl font-bold text-purple-700">✨ 國文魔法教室 ✨</h1>
@@ -23,70 +21,66 @@
 </header>
 
 <!-- Main -->
-
 <main class="max-w-6xl mx-auto px-4 pb-12">
 
   <h2 class="text-2xl font-bold mb-6 text-purple-700">📖 魔法教材書櫃</h2>
 
- <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+  <!-- ⭐ 重點：items-stretch 讓卡片等高 -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 items-stretch">
 
-```
-<!-- 孟子 -->
-<a href="fb-mencius.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full max-w-sm">
-  <img src="https://picsum.photos/seed/mencius/600/300" class="h-40 w-full object-cover">
-  <div class="p-5">
-    <div class="text-3xl mb-2">📱✨</div>
-    <h3 class="text-xl font-bold text-purple-700">孟子 Facebook</h3>
-    <p class="text-gray-600 text-sm mt-2">
-      跟著孟子探索人生與憂患的智慧世界。
-    </p>
+    <!-- 孟子 -->
+    <a href="fb-mencius.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full flex flex-col">
+      <img src="https://picsum.photos/seed/mencius/600/300" class="h-40 w-full object-cover">
+      <div class="p-5 flex flex-col flex-grow">
+        <div class="text-3xl mb-2">📱✨</div>
+        <h3 class="text-xl font-bold text-purple-700">孟子 Facebook</h3>
+        <p class="text-gray-600 text-sm mt-2 flex-grow">
+          跟著孟子探索人生與憂患的智慧世界。
+        </p>
+      </div>
+    </a>
+
+    <!-- 對聯 -->
+    <a href="duilian.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full flex flex-col">
+      <img src="https://picsum.photos/seed/duilian/600/300" class="h-40 w-full object-cover">
+      <div class="p-5 flex flex-col flex-grow">
+        <div class="text-3xl mb-2">🀄🌸</div>
+        <h3 class="text-xl font-bold text-pink-600">對聯小學堂</h3>
+        <p class="text-gray-600 text-sm mt-2 flex-grow">
+          練習對聯結構與語感，挑戰你的文學直覺！
+        </p>
+      </div>
+    </a>
+
+    <!-- 種梨 -->
+    <a href="liaozhai-pear.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full flex flex-col">
+      <img src="https://picsum.photos/seed/pear123/600/300" class="h-40 w-full object-cover">
+      <div class="p-5 flex flex-col flex-grow">
+        <div class="text-3xl mb-2">🍐🌙✨</div>
+        <h3 class="text-xl font-bold text-green-600">聊齋・種梨</h3>
+        <p class="text-gray-600 text-sm mt-2 flex-grow">
+          走進奇幻聊齋世界，理解人性與寓意。
+        </p>
+      </div>
+    </a>
+
+    <!-- 二十年後 -->
+    <a href="twenty-years.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full flex flex-col">
+      <img src="https://picsum.photos/seed/20years/600/300" class="h-40 w-full object-cover">
+      <div class="p-5 flex flex-col flex-grow">
+        <div class="text-3xl mb-2">⏳🌆✨</div>
+        <h3 class="text-xl font-bold text-blue-600">二十年後</h3>
+        <p class="text-gray-600 text-sm mt-2 flex-grow">
+          探索歐亨利筆下的友情與人生選擇，思考時間與價值的意義。
+        </p>
+      </div>
+    </a>
+
   </div>
-</a>
-
-<!-- 對聯 -->
-<a href="duilian.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full max-w-sm">
-  <img src="https://picsum.photos/seed/duilian/600/300" class="h-40 w-full object-cover">
-  <div class="p-5">
-    <div class="text-3xl mb-2">🀄🌸</div>
-    <h3 class="text-xl font-bold text-pink-600">對聯小學堂</h3>
-    <p class="text-gray-600 text-sm mt-2">
-      練習對聯結構與語感，挑戰你的文學直覺！
-    </p>
-  </div>
-</a>
-
-<!-- 種梨（已修好） -->
-<a href="liaozhai-pear.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full max-w-sm">
-  <img src="https://picsum.photos/seed/pear123/600/300" class="h-40 w-full object-cover">
-  <div class="p-5">
-    <div class="text-3xl mb-2">🍐🌙✨</div>
-    <h3 class="text-xl font-bold text-green-600">聊齋・種梨</h3>
-    <p class="text-gray-600 text-sm mt-2">
-      走進奇幻聊齋世界，理解人性與寓意。
-    </p>
-  </div>
-</a>
-
-<!-- 📖 二十年後 -->
-<a href="twenty-years.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden w-full max-w-sm">
-
-  <img src="https://picsum.photos/seed/20years/600/300" class="h-40 w-full object-cover">
-
-  <div class="p-5">
-    <div class="text-3xl mb-2">⏳🌆✨</div>
-    <h3 class="text-xl font-bold text-blue-600">二十年後</h3>
-    <p class="text-gray-600 text-sm mt-2">
-      探索歐亨利筆下的友情與人生選擇，思考時間與價值的意義。
-    </p>
-  </div>
-
-</a>
-
 
 </main>
 
 <!-- Footer -->
-
 <footer class="text-center text-purple-400 pb-6 text-sm">
   ✨ 魔法學習平台 × GitHub Pages ✨
 </footer>
