@@ -1,76 +1,82 @@
 <!DOCTYPE html>
+
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8" />
-  <title>國文互動教材首頁</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <script src="https://cdn.tailwindcss.com"></script>
+<meta charset="UTF-8" />
+<title>國文互動教材樂園</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script src="https://cdn.tailwindcss.com"></script>
 </head>
 
-<body class="bg-gray-100 text-gray-800">
+<body class="bg-gradient-to-br from-pink-100 via-purple-100 to-blue-100 text-gray-800">
 
-  <!-- Header 區 -->
-  <header class="bg-blue-600 text-white py-6 shadow-lg">
-    <div class="max-w-5xl mx-auto text-center">
-      <h1 class="text-3xl font-bold">國文互動教材總覽</h1>
-      <p class="text-blue-100 mt-2 text-lg">
-        Renee 老師的教學專區 · GitHub Pages
-      </p>
-    </div>
-  </header>
+<!-- 🌟 Header（登入感） -->
 
-  <!-- Main 容器 -->
-  <main class="max-w-5xl mx-auto mt-10 px-4">
+<header class="flex justify-center mt-10 mb-6">
+  <div class="bg-white/80 backdrop-blur shadow-xl rounded-3xl px-8 py-6 text-center border border-white max-w-md w-full">
+    <h1 class="text-2xl font-bold text-purple-700">✨ 國文魔法教室 ✨</h1>
+    <p class="text-gray-500 mt-2">歡迎來到 Renee 老師的學習世界 🪄</p>
+    <button class="mt-4 bg-purple-500 hover:bg-purple-600 text-white px-5 py-2 rounded-full shadow transition">
+      進入學習 🚀
+    </button>
+  </div>
+</header>
 
-    <!-- 區塊標題 -->
-    <h2 class="text-2xl font-bold mb-6">📘 互動教材列表</h2>
+<!-- 📚 教材區 -->
 
-    <!-- 卡片容器 -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<main class="max-w-6xl mx-auto px-4 pb-12">
 
-      <!-- 卡片範例 1：孟子 FB 模擬器 -->
-      <a href="fb-mencius.html" 
-         class="block bg-white rounded-xl shadow hover:shadow-xl transition p-5 border border-gray-200">
-        <div class="text-4xl mb-3">📱</div>
-        <h3 class="text-xl font-bold mb-2">孟子 Facebook 模擬器</h3>
-        <p class="text-gray-600 text-sm">
-          趣味化理解〈生於憂患，死於安樂〉與孟子思想的最佳教材。
-        </p>
-      </a>
+  <h2 class="text-2xl font-bold mb-6 text-purple-700">📖 魔法教材書櫃</h2>
 
-<!-- 卡片範例 2：對聯小學堂 -->
-<a href="duilian.html" class="block bg-white rounded-xl shadow hover:shadow-xl transition p-5 border border-gray-200">
-  <div class="text-4xl mb-3">🀄</div>
-  <h3 class="text-xl font-bold mb-2">對聯小學堂</h3>
-  <p class="text-gray-600 text-sm">
-    練習對聯結構、平仄與語意配對的互動小遊戲，國文課隨時可用！
-  </p>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+
+```
+<!-- 📱 孟子 -->
+<a href="fb-mencius.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden">
+  <img src="https://images.unsplash.com/photo-1524995997946-a1c2e315a42f" class="h-40 w-full object-cover">
+  <div class="p-5">
+    <div class="text-3xl mb-2">📱✨</div>
+    <h3 class="text-xl font-bold text-purple-700">孟子 Facebook</h3>
+    <p class="text-gray-600 text-sm mt-2">
+      跟著孟子探索人生與憂患的智慧世界。
+    </p>
+  </div>
 </a>
 
-
-
-        </p>
-      </a>
-
-     <!-- 卡片範例 3：聊齋～種梨 -->
-<a href="liaozhai-pear.html" class="block bg-white rounded-xl shadow hover:shadow-xl transition p-5 border border-gray-200">
-  <div class="text-4xl mb-3">🍐</div>
-  <h3 class="text-xl font-bold mb-2">聊齋～種梨</h3>
-  <p class="text-gray-600 text-sm">
-    透過故事互動與情節理解，認識《聊齋志異》〈種梨〉的寓意與人性觀察。
-  </p>
+<!-- 🀄 對聯 -->
+<a href="duilian.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden">
+  <img src="https://images.unsplash.com/photo-1509021436665-8f07dbf5bf1d" class="h-40 w-full object-cover">
+  <div class="p-5">
+    <div class="text-3xl mb-2">🀄🌸</div>
+    <h3 class="text-xl font-bold text-pink-600">對聯小學堂</h3>
+    <p class="text-gray-600 text-sm mt-2">
+      練習對聯結構與語感，挑戰你的文學直覺！
+    </p>
+  </div>
 </a>
-        </p>
-      </a>
 
-    </div>
+<!-- 🍐 種梨 -->
+<a href="liaozhai-pear.html" class="bg-white rounded-3xl shadow-lg hover:shadow-2xl transform hover:-translate-y-3 transition duration-300 overflow-hidden">
+  <img src="https://images.unsplash.com/photo-1574226516831-e1dff420e12b" class="h-40 w-full object-cover">
+  <div class="p-5">
+    <div class="text-3xl mb-2">🍐🌙</div>
+    <h3 class="text-xl font-bold text-green-600">聊齋・種梨</h3>
+    <p class="text-gray-600 text-sm mt-2">
+      走進奇幻聊齋世界，理解人性與寓意。
+    </p>
+  </div>
+</a>
+```
 
-    <!-- Footer -->
-    <footer class="text-center text-gray-500 mt-12 py-6">
-      © 2025 國文互動教材 · Powered by GitHub Pages
-    </footer>
+  </div>
 
-  </main>
+</main>
+
+<!-- Footer -->
+
+<footer class="text-center text-purple-400 pb-6 text-sm">
+  ✨ 魔法學習平台 × GitHub Pages ✨
+</footer>
 
 </body>
 </html>
