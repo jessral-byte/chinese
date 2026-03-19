@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>聊齋誌異：種梨 - 教育遊戲引擎</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ink-blue: #0f172a;
+            --cream-paper: #fdf6e3;
+            --gold: #d4af37;
+            --correct-green: #10b981;
+            --wrong-red: #ef4444;
+        }
+
+        body {
+            font-family: 'Noto Serif TC', serif;
+            background-color: var(--ink-blue);
+            color: var(--ink-blue);
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-container {
+            width: 100%;
+            max-width: 600px;
+            height: 90vh;
+            background-color: var(--cream-paper);
+            position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            border: 8px solid var(--gold);
+            border-radius: 4px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .parchment-texture {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            opacity: 0.05;
+            pointer-events: none;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+        }
+
+        .screen {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            padding: 2rem;
+            z-index: 10;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        .btn-gold {
+            background-color: var(--ink-blue);
+            color: var(--gold);
+            border: 2px solid var(--gold);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2px;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-gold:hover {
+            background-color: var(--gold);
+            color: var(--ink-blue);
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .option-card:hover {
+            border-color: var(--ink-blue);
+            transform: translateX(5px);
+        }
+
+        .option-card.correct {
+            border-color: var(--correct-green);
+            background-color: #ecfdf5;
+        }
+
+        .option-card.wrong {
+            border-color: var(--wrong-red);
+            background-color: #fef2f2;
+        }
+
+        .ink-splat {
+            position: absolute;
+            pointer-events: none;
+            animation: splat 0.4s ease-out forwards;
+        }
+
+        @keyframes splat {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 0.7; }
+        }
+
+        .progress-bar {
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gold);
+            transition: width 0.3s ease;
+        }
+
+        .chapter-node {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid var(--ink-blue);
+            background: white;
+            font-weight: bold;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .chapter-node.locked {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .chapter-node.active {
+            background: var(--gold);
+            color: var(--ink-blue);
+            box-shadow: 0 0 15px var(--gold);
+        }
+
+        /* 獎狀樣式 */
+        .certificate-border {
+            border: 15px double var(--gold);
+            padding: 2rem;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            position: relative;
+        }
+
+        .seal {
+            width: 80px;
+            height: 80px;
+            background: #b91c1c;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transform: rotate(-15deg);
+            border: 2px dashed #f87171;
+            position: absolute;
+            bottom: 20%;
+            right: 10%;
+            box-shadow: 0 0 10px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div class="parchment-texture"></div>
+
+    <!-- Start Screen -->
+    <div id="start-screen" class="screen active justify-center items-center text-center">
+        <h1 class="text-4xl font-bold mb-4">聊齋：種梨</h1>
+        <p class="text-lg mb-8 italic">古典文學遊戲化學習系統</p>
+        <button class="btn-gold text-xl" onclick="showScreen('map-screen')">進入故事</button>
+    </div>
+
+    <!-- Map Screen -->
+    <div id="map-screen" class="screen">
+        <h2 class="text-2xl font-bold mb-6 border-b-2 border-slate-200 pb-2">章節地圖 (需80分才可晉級)</h2>
+        <div id="chapter-list" class="grid grid-cols-3 gap-6">
+            <!-- Chapters injected here -->
+        </div>
+        <div class="mt-auto text-center">
+            <button class="btn-gold" onclick="showScreen('start-screen')">返回主頁</button>
+        </div>
+    </div>
+
+    <!-- Question Screen -->
+    <div id="question-screen" class="screen">
+        <div class="flex justify-between items-center mb-4">
+            <span id="chapter-title" class="text-sm font-bold text-slate-500 uppercase">Chapter</span>
+            <span id="score-display" class="font-bold text-gold">Score: 0</span>
+        </div>
+        <div class="progress-bar mb-6">
+            <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+        </div>
+        <h3 id="question-text" class="text-xl font-bold mb-8 leading-relaxed">題目加載中...</h3>
+        <div id="options-container" class="flex flex-col">
+            <!-- Options injected here -->
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="screen justify-center items-center text-center">
+        <h2 class="text-3xl font-bold mb-2">章節完成！</h2>
+        <div id="star-rating" class="text-4xl mb-6">⭐⭐⭐</div>
+        <p id="result-message" class="text-lg mb-8">做得好！</p>
+        <div id="result-actions" class="w-full flex flex-col gap-3">
+            <button class="btn-gold w-full" onclick="showScreen('map-screen')">返回地圖</button>
+            <button id="cert-btn" class="btn-gold w-full hidden" style="background-color: #d4af37; color: white;" onclick="showScreen('cert-screen')">🏆 領取成就獎狀</button>
+        </div>
+    </div>
+
+    <!-- Certificate Screen -->
+    <div id="cert-screen" class="screen p-4">
+        <div class="certificate-border text-center">
+            <h1 class="text-3xl font-bold text-ink-blue mb-4">榮譽獎狀</h1>
+            <p class="text-sm uppercase tracking-widest mb-6">Achievement Award</p>
+            <p class="text-lg mb-4">茲證明 勇於挑戰的學習者</p>
+            <p class="text-base leading-relaxed px-4">
+                在《聊齋誌異．種梨》數位學習挑戰中，成功通過全部六道關卡，深刻理解「戒貪吝、明事理」之寓意，成績優異，特頒此狀，以資鼓勵。
+            </p>
+            <div class="mt-8">
+                <p class="font-bold border-b-2 border-ink-blue inline-block px-4">聊齋教育遊戲架構師</p>
+            </div>
+            <div class="seal">聊齋<br>認證</div>
+            <button class="mt-12 text-xs text-slate-400 underline" onclick="window.print()">[ 列印獎狀 ]</button>
+        </div>
+        <button class="btn-gold mt-4" onclick="showScreen('map-screen')">關閉</button>
+    </div>
+</div>
+
+<script>
+    const QUESTIONS_DB = [
+        {
+            chapter: 1,
+            title: "第一章：吝嗇的鄉人",
+            questions: [
+                { q: "故事開頭，鄉人推著車子在市集裡做什麼？", o: ["買梨", "賣梨", "買種子", "表演幻術"], a: 1 },
+                { q: "道士向鄉人討梨時，鄉人的反應是什麼？", o: ["大方給了一顆", "低價賣給他", "憤怒地呵斥道士", "假裝沒看見"], a: 2 },
+                { q: "文中形容道士的穿著是什麼樣子的？", o: ["鮮豔的道袍", "普通的布衣", "襤褸的破衣", "華麗的絲綢"], a: 2 },
+                { q: "鄉人為何不願意給道士哪怕是一顆爛梨？", o: ["梨子太貴重", "他性格極度吝嗇", "他已經賣光了", "他討厭道士的香味"], a: 1 },
+                { q: "眾人在旁邊勸解鄉人時，鄉人的態度如何？", o: ["漸漸心軟", "依然堅決不給", "感到非常羞愧", "決定報官"], a: 1 }
+            ]
+        },
+        {
+            chapter: 2,
+            title: "第二章：施捨的善意",
+            questions: [
+                { q: "最後是誰買下梨子送給道士？", o: ["另一位農夫", "一名店舖裡的傭工", "一位官員", "鄉人的鄰居"], a: 1 },
+                { q: "這名好事者買梨的初衷可能是什麼？", o: ["想看道士變戲法", "純粹錢太多", "為了平息吵鬧的場面", "他是道士的親戚"], a: 2 },
+                { q: "道士接過買來的梨子後，對眾人說了什麼？", o: ["他會報答買梨的人", "這梨子太難吃了", "他自己其實有很多好梨", "他要帶走這名傭工"], a: 2 },
+                { q: "道士說「貧道不吝」，這句話對比了誰的行為？", o: ["買梨的傭工", "圍觀的民眾", "吝嗇的鄉人", "附近的縣令"], a: 2 },
+                { q: "當道士吃完梨子後，他保留了什麼？", o: ["梨皮", "梨核（種子）", "買梨的錢", "裝梨的籃子"], a: 1 }
+            ]
+        },
+        {
+            chapter: 3,
+            title: "第三章：神秘的種子",
+            questions: [
+                { q: "道士在施法前，在地上做了什麼動作？", o: ["畫了一個圓圈", "挖了一個數寸深的小洞", "鋪了一層紅布", "點燃了三炷香"], a: 1 },
+                { q: "道士向路邊的店鋪索取什麼東西來澆灌種子？", o: ["冷水", "熱水 (湯)", "美酒", "食鹽"], a: 1 },
+                { q: "種子種下並澆水後，最先出現的變化是什麼？", o: ["長出葉子", "冒出新芽", "開出花朵", "結出果實"], a: 1 },
+                { q: "道士施法的地點是在哪裡？", o: ["偏僻的山林", "熱鬧的市集中心", "縣衙大門口", "鄉人的家裡"], a: 1 },
+                { q: "圍觀群眾對道士種梨的行為抱持什麼態度？", o: ["不屑一顧", "驚奇與關注", "感到恐懼", "懷疑道士是騙子"], a: 1 }
+            ]
+        },
+        {
+            chapter: 4,
+            title: "第四章：頃刻成果",
+            questions: [
+                { q: "梨樹從生長到結出果實花了多少時間？", o: ["一年", "一整天", "頃刻之間", "一個月"], a: 2 },
+                { q: "文中如何形容幻術變出的梨子？", o: ["乾癟瘦小", "巨大且芬芳", "顏色發黑", "味道酸澀"], a: 1 },
+                { q: "梨子成熟後，道士如何處理這些果實？", o: ["全部賣掉換錢", "自己一個人吃光", "摘下來分送給觀眾", "把梨子變回種子"], a: 2 },
+                { q: "果實分完後，道士接下來做了什麼？", o: ["立刻消失不見", "用鐵鍬砍倒梨樹", "在樹下睡覺", "向群眾要錢"], a: 1 },
+                { q: "道士砍樹後，扛著什麼東西離開了？", o: ["裝滿梨的籃子", "整棵帶著葉子的梨樹", "剛才用的鐵鍬", "鄉人的馬車"], a: 1 }
+            ]
+        },
+        {
+            chapter: 5,
+            title: "第五章：幻術的真相",
+            questions: [
+                { q: "當鄉人回頭看自己的車子時，發現了什麼？", o: ["車子變成了黃金", "車上的梨子全都不見了", "他的驢子死掉了", "車上多了一個道士"], a: 1 },
+                { q: "鄉人發現車子上的哪一個零件被砍斷了？", o: ["車輪", "車軸", "車杠", "車棚"], a: 2 },
+                { q: "鄉人追到城角時，在那裡看到了什麼？", o: ["逃跑的道士", "被丟棄在牆角的車杠", "一棵真正的梨樹", "買梨的傭工"], a: 1 },
+                { q: "這代表道士剛才在眾人面前分發的梨子實際上是？", o: ["鄉人車上原本要賣的梨子", "憑空變出來的假梨子", "路邊買來的普通梨子", "樹上掉下來的野梨子"], a: 0 },
+                { q: "市集上的人們對鄉人的遭遇有什麼反應？", o: ["深感同情", "一起大笑", "感到害怕", "幫忙追道士"], a: 1 }
+            ]
+        },
+        {
+            chapter: 6,
+            title: "第六章：蒲松齡的評點",
+            questions: [
+                { q: "文中提到有些富人大手大腳地花錢，卻在哪種事情上非常吝嗇？", o: ["買昂貴的衣服", "救濟貧窮的親戚", "裝修豪華的房子", "請客吃飯"], a: 1 },
+                { q: "作者用「種梨」這個故事來諷刺什麼樣的社會現象？", o: ["幻術誤導大眾", "愚昧的迷信", "愚蠢且吝嗇的人自食其果", "市集管理的混亂"], a: 2 },
+                { q: "「異史氏」是誰的自稱？", o: ["故事裡的道士", "買梨的傭工", "作者蒲松齡", "吝嗇的鄉人"], a: 2 },
+                { q: "故事最後提到，鄉人的損失僅僅是一車梨子嗎？", o: ["是的，只有梨子", "不是，還毀壞了生財工具（車杠）與名聲", "不是，他還被抓去坐牢", "是的，他其實賺到了名氣"], a: 1 },
+                { q: "這篇故事的核心寓意可以用哪句話概括？", o: ["天降橫財必有禍", "多行不義必自斃（吝嗇致禍）", "勤勞致富是真理", "路見不平拔刀相助"], a: 1 }
+            ]
+        }
+    ];
+
+    let currentChapter = 0;
+    let currentQuestionIdx = 0;
+    let score = 0;
+    let unlockedChapters = [1];
+    let allFinished = false;
+
+    function showScreen(screenId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+        if(screenId === 'map-screen') renderMap();
+    }
+
+    function renderMap() {
+        const list = document.getElementById('chapter-list');
+        list.innerHTML = '';
+        for(let i = 1; i <= 6; i++) {
+            const isUnlocked = unlockedChapters.includes(i);
+            const node = document.createElement('div');
+            node.className = `chapter-node ${!isUnlocked ? 'locked' : ''} ${isUnlocked ? 'active' : ''}`;
+            node.innerHTML = i;
+            if(isUnlocked) node.onclick = () => startChapter(i-1);
+            list.appendChild(node);
+        }
+    }
+
+    function startChapter(idx) {
+        currentChapter = idx;
+        currentQuestionIdx = 0;
+        score = 0;
+        showScreen('question-screen');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const chapter = QUESTIONS_DB[currentChapter];
+        const qData = chapter.questions[currentQuestionIdx];
+        document.getElementById('chapter-title').innerText = chapter.title;
+        document.getElementById('score-display').innerText = `得分: ${score}`;
+        document.getElementById('question-text').innerText = `${currentQuestionIdx + 1}. ${qData.q}`;
+        document.getElementById('progress-fill').style.width = `${(currentQuestionIdx / chapter.questions.length) * 100}%`;
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        qData.o.forEach((opt, i) => {
+            const card = document.createElement('div');
+            card.className = 'option-card';
+            card.innerText = opt;
+            card.onclick = () => handleAnswer(i, card);
+            container.appendChild(card);
+        });
+    }
+
+    function handleAnswer(selectedIdx, element) {
+        const qData = QUESTIONS_DB[currentChapter].questions[currentQuestionIdx];
+        const allCards = document.querySelectorAll('.option-card');
+        allCards.forEach(c => c.onclick = null);
+        if(selectedIdx === qData.a) {
+            element.classList.add('correct');
+            score += 20;
+            createInkSplat(element, '#10b981');
+        } else {
+            element.classList.add('wrong');
+            allCards[qData.a].classList.add('correct');
+            createInkSplat(element, '#ef4444');
+        }
+        setTimeout(() => {
+            currentQuestionIdx++;
+            if(currentQuestionIdx < QUESTIONS_DB[currentChapter].questions.length) {
+                renderQuestion();
+            } else {
+                finishChapter();
+            }
+        }, 1200);
+    }
+
+    function finishChapter() {
+        const nextChapter = currentChapter + 2;
+        const passThreshold = 80; // 提升門檻至 80 分
+        const passed = score >= passThreshold;
+
+        if(passed && !unlockedChapters.includes(nextChapter) && nextChapter <= 6) {
+            unlockedChapters.push(nextChapter);
+        }
+
+        // 判斷是否全破 (第六章且及格)
+        if(currentChapter === 5 && passed) {
+            allFinished = true;
+            document.getElementById('cert-btn').classList.remove('hidden');
+        } else {
+            document.getElementById('cert-btn').classList.add('hidden');
+        }
+
+        const stars = score >= 100 ? "⭐⭐⭐" : score >= 80 ? "⭐⭐" : "⭐";
+        document.getElementById('star-rating').innerText = stars;
+        document.getElementById('result-message').innerText = passed ? "達到 80 分！成功晉級下一關。" : "未達 80 分晉級門檻，請再挑戰一次！";
+        showScreen('result-screen');
+    }
+
+    function createInkSplat(parent, color) {
+        const splat = document.createElement('div');
+        splat.className = 'ink-splat';
+        splat.style.left = '50%'; splat.style.top = '50%';
+        splat.style.width = '80px'; splat.style.height = '80px';
+        splat.innerHTML = `<svg viewBox="0 0 100 100" fill="${color}"><path d="M50 10C30 10 10 30 10 50S30 90 50 90 90 70 90 50 70 10 50 10Z" opacity="0.3"></path></svg>`;
+        parent.appendChild(splat);
+    }
+</script>
+</body>
+</html>
