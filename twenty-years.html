@@ -147,6 +147,36 @@
             100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 0px; }
         }
 
+        /* 獎勵光暈特效 */
+        @keyframes shineSweep {
+            0% { transform: translateX(-100%) skewX(-15deg); }
+            100% { transform: translateX(200%) skewX(-15deg); }
+        }
+        .shine-effect {
+            position: relative;
+            overflow: hidden;
+        }
+        .shine-effect::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shineSweep 3s infinite;
+        }
+
+        /* 慶祝粒子 (金雨) */
+        .gold-particle {
+            position: absolute;
+            width: 3px; height: 15px;
+            background: linear-gradient(to bottom, rgba(251,191,36,0.8), transparent);
+            pointer-events: none;
+            z-index: 100;
+        }
+        @keyframes fall {
+            0% { transform: translateY(-50px); opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
         /* 自訂滾動條 */
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
@@ -231,14 +261,43 @@
 
                 <!-- 操作按鈕 (只有底線的光影效果) -->
                 <div class="flex flex-col gap-4 w-full">
-                    <button id="btn-next-chapter" onclick="startNextChapter()" class="group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
+                    <button id="btn-next-chapter" onclick="startNextChapter()" class="hidden group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
                         <span>繼續調查 <i class="fas fa-long-arrow-alt-right ml-2 group-hover:translate-x-2 transition-transform"></i></span>
+                        <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gaslight to-transparent group-hover:via-gaslightGlow"></div>
+                    </button>
+                    <button id="btn-reward" onclick="showReward()" class="hidden group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
+                        <span>開啟最高機密檔案 <i class="fas fa-unlock-alt ml-2"></i></span>
                         <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gaslight to-transparent group-hover:via-gaslightGlow"></div>
                     </button>
                     <button onclick="returnToMenu()" class="group relative w-full py-4 font-medium text-slate-400 hover:text-white transition-colors text-sm tracking-widest mt-2">
                         <span>返回卷宗目錄</span>
                     </button>
                 </div>
+            </div>
+        </div>
+
+        <!-- 畫面 4: 通關獎勵 -->
+        <div id="screen-reward" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center relative z-0">
+            <div class="w-full max-w-md slide-in flex flex-col items-center">
+                <div class="relative mb-8 shine-effect p-8 bg-black/40 border border-gaslight/40 rounded-sm shadow-[0_0_40px_rgba(251,191,36,0.15)]">
+                    <!-- 裝飾角 -->
+                    <div class="absolute top-0 left-0 w-4 h-4 border-t border-l border-gaslight"></div>
+                    <div class="absolute top-0 right-0 w-4 h-4 border-t border-r border-gaslight"></div>
+                    <div class="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-gaslight"></div>
+                    <div class="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-gaslight"></div>
+                    
+                    <i class="fas fa-medal text-7xl text-gaslightGlow drop-shadow-[0_0_20px_rgba(251,191,36,0.8)] mb-6 mt-4"></i>
+                    <h2 class="text-3xl font-serif font-bold text-gaslightGlow tracking-widest mb-3">榮譽探員徽章</h2>
+                    <div class="h-px w-3/4 bg-gradient-to-r from-transparent via-gaslight to-transparent mx-auto my-4"></div>
+                    <p class="text-slate-300 text-sm leading-relaxed tracking-widest text-left mt-6">
+                        「你的洞察力驅散了紐約雨夜的迷霧。在友誼與職責的十字路口，你見證了最艱難的抉擇。」<br><br>
+                        <span class="text-gaslight text-xs uppercase block text-right mt-2">— NYPD 總署 敬上</span>
+                    </p>
+                </div>
+                
+                <button onclick="returnToMenu()" class="group relative w-full py-4 font-medium text-slate-400 hover:text-white transition-colors text-sm tracking-widest">
+                    <span>結束調查並返回首頁</span>
+                </button>
             </div>
         </div>
 
@@ -300,6 +359,7 @@
         const screenMenu = document.getElementById('screen-menu');
         const screenGame = document.getElementById('screen-game');
         const screenResult = document.getElementById('screen-result');
+        const screenReward = document.getElementById('screen-reward');
         const chapterList = document.getElementById('chapter-list');
         const headerTitle = document.getElementById('header-title');
         const btnBack = document.getElementById('btn-back');
@@ -317,6 +377,7 @@
             screenMenu.classList.remove('hidden');
             screenGame.classList.add('hidden');
             screenResult.classList.add('hidden');
+            screenReward.classList.add('hidden');
             btnBack.classList.add('hidden');
             progressIndicator.classList.add('hidden');
             headerTitle.textContent = "案件卷宗";
@@ -484,15 +545,23 @@
             }, 500);
 
             const btnNext = document.getElementById('btn-next-chapter');
-            if (stars >= 2 && currentChapterObj.chapter === maxUnlockedChapter) {
-                maxUnlockedChapter++; 
-            }
+            const btnReward = document.getElementById('btn-reward');
+            const isLastChapter = currentChapterObj.chapter === QUESTIONS_DB.length;
 
-            const hasNextChapter = QUESTIONS_DB.some(c => c.chapter === currentChapterObj.chapter + 1);
-            if (hasNextChapter && stars >= 2) {
-                btnNext.classList.remove('hidden');
-            } else {
-                btnNext.classList.add('hidden');
+            btnNext.classList.add('hidden');
+            btnReward.classList.add('hidden');
+
+            if (stars >= 2) {
+                if (isLastChapter) {
+                    // 全破且達標，顯示獎勵按鈕
+                    btnReward.classList.remove('hidden');
+                } else {
+                    // 解鎖下一章
+                    if (currentChapterObj.chapter === maxUnlockedChapter) {
+                        maxUnlockedChapter++; 
+                    }
+                    btnNext.classList.remove('hidden');
+                }
             }
         }
 
@@ -511,6 +580,37 @@
             if (currentChapterObj) {
                 startChapter(currentChapterObj.chapter + 1);
             }
+        }
+
+        function showReward() {
+            screenResult.classList.add('hidden');
+            screenReward.classList.remove('hidden');
+            headerTitle.textContent = "最高機密";
+            createConfetti();
+        }
+
+        function createConfetti() {
+            const container = document.getElementById('particles-container');
+            container.innerHTML = '';
+            const screenW = window.innerWidth;
+            
+            for (let i = 0; i < 60; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'gold-particle';
+                
+                const startX = Math.random() * screenW;
+                const delay = Math.random() * 2;
+                const duration = 1.5 + Math.random() * 2;
+                
+                particle.style.left = `${startX}px`;
+                particle.style.animation = `fall ${duration}s linear ${delay}s forwards`;
+                
+                container.appendChild(particle);
+            }
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
         }
 
         function createRipple(x, y) {
