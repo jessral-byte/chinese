@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>二十年後：紐約雨夜挑戰 (Cinematic Edition)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        midnight: '#0f172a',
+                        asphalt: '#1e293b',
+                        gaslight: '#fbbf24',
+                        gaslightGlow: '#fef08a',
+                    },
+                    fontFamily: {
+                        serif: ['"Noto Serif TC"', 'serif'],
+                        sans: ['"Noto Sans TC"', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            background-color: #020617;
+            font-family: 'Noto Sans TC', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            color: #e2e8f0;
+        }
+        
+        /* 紐約雨夜環境特效 */
+        .weather-container {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+            background: radial-gradient(circle at 70% 30%, #1e293b 0%, #020617 80%);
+        }
+
+        .rain-layer {
+            position: absolute;
+            top: -100%; left: 0; width: 100%; height: 200%;
+            background-image: url('data:image/svg+xml;utf8,<svg width="150" height="200" xmlns="http://www.w3.org/2000/svg"><line x1="75" y1="0" x2="55" y2="200" stroke="rgba(255,255,255,0.15)" stroke-width="1"/><line x1="25" y1="50" x2="5" y2="250" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></svg>');
+            animation: rainfall 0.6s linear infinite;
+        }
+
+        .fog-layer {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 60%;
+            background: linear-gradient(to top, rgba(2,6,23,1) 0%, rgba(2,6,23,0.6) 50%, transparent 100%);
+        }
+
+        @keyframes rainfall {
+            0% { transform: translateY(0); }
+            100% { transform: translateY(50%); }
+        }
+
+        /* 🎬 打破方框的非對稱 UI 樣式 */
+        
+        /* 檔案夾標籤切角設計 */
+        .noir-folder {
+            background: linear-gradient(135deg, rgba(30,41,59,0.85) 0%, rgba(15,23,42,0.4) 100%);
+            clip-path: polygon(0 0, calc(100% - 25px) 0, 100% 25px, 100% 100%, 0 100%);
+            border-left: 3px solid rgba(255,255,255,0.1);
+        }
+        .noir-folder:hover:not(.locked) {
+            background: linear-gradient(135deg, rgba(30,41,59,0.95) 0%, rgba(251,191,36,0.15) 100%);
+            border-left: 3px solid #fbbf24;
+        }
+
+        /* 選項的光影掃掠漸層 (無邊框) */
+        .option-row {
+            background: linear-gradient(90deg, rgba(15,23,42,0.6) 0%, transparent 100%);
+            border-left: 2px solid rgba(255,255,255,0.1);
+            clip-path: polygon(0 0, 100% 0, calc(100% - 20px) 100%, 0 100%);
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .option-row:hover:not(:disabled) {
+            background: linear-gradient(90deg, rgba(251,191,36,0.2) 0%, transparent 100%);
+            border-left: 4px solid #fef08a;
+            padding-left: 1.5rem; /* 懸停時向右滑動的文字縮排感 */
+        }
+        .option-row.correct {
+            background: linear-gradient(90deg, rgba(6,78,59,0.7) 0%, transparent 100%);
+            border-left: 4px solid #34d399;
+        }
+        .option-row.wrong {
+            background: linear-gradient(90deg, rgba(127,29,29,0.7) 0%, transparent 100%);
+            border-left: 4px solid #f87171;
+        }
+        .option-row:disabled {
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        /* 題目引導線 */
+        .quote-line {
+            position: relative;
+        }
+        .quote-line::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 3px;
+            background: linear-gradient(to bottom, #fbbf24, transparent);
+            box-shadow: 0 0 10px rgba(251,191,36,0.5);
+        }
+
+        /* UI 動畫 */
+        @keyframes fadeSlideUp {
+            from { transform: translateY(20px) skewX(2deg); opacity: 0; }
+            to { transform: translateY(0) skewX(0); opacity: 1; }
+        }
+        .slide-in {
+            animation: fadeSlideUp 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+        .shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        /* 水窪漣漪特效 */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid rgba(251, 191, 36, 0.8);
+            pointer-events: none;
+            transform: translate(-50%, -50%) scale(0);
+            animation: rippleAnim 0.6s ease-out forwards;
+            z-index: 50;
+        }
+        @keyframes rippleAnim {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 1; border-width: 4px; }
+            100% { transform: translate(-50%, -50%) scale(3); opacity: 0; border-width: 0px; }
+        }
+
+        /* 自訂滾動條 */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); }
+    </style>
+</head>
+<body class="h-screen w-full flex items-center justify-center relative">
+
+    <!-- 雨夜環境層 -->
+    <div class="weather-container">
+        <div class="rain-layer"></div>
+        <div class="fog-layer"></div>
+    </div>
+
+    <!-- 粒子特效容器 -->
+    <div id="particles-container" class="absolute inset-0 pointer-events-none z-50 overflow-hidden"></div>
+
+    <!-- 遊戲主體 (移除死板的方形容器，改用滿版+最大寬度限制) -->
+    <div class="w-full max-w-2xl h-full sm:h-[95vh] relative flex flex-col z-10 text-slate-200">
+        
+        <!-- 頂部導航 (無明顯下邊界，融入背景) -->
+        <div class="px-6 py-5 flex justify-between items-center relative z-10 bg-gradient-to-b from-black/80 to-transparent">
+            <button id="btn-back" class="hidden text-gaslight/70 hover:text-gaslightGlow transition-colors duration-300 hover:-translate-x-1">
+                <i class="fas fa-arrow-left text-xl"></i>
+            </button>
+            <div class="flex-1 flex justify-center">
+                <h1 id="header-title" class="font-serif text-lg md:text-xl font-bold tracking-widest text-gaslightGlow drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]">案件卷宗</h1>
+            </div>
+            <div id="progress-indicator" class="hidden text-sm font-bold text-gaslight/80 tracking-widest">
+                <span id="current-q-num">1</span> / <span id="total-q-num">5</span>
+            </div>
+        </div>
+
+        <!-- 畫面 1: 章節選擇選單 -->
+        <div id="screen-menu" class="flex-1 overflow-y-auto px-6 py-2 flex flex-col gap-4 relative z-0">
+            <div class="text-center my-8 slide-in">
+                <h2 class="text-4xl md:text-5xl font-serif font-bold text-gaslightGlow mb-2 drop-shadow-[0_0_20px_rgba(251,191,36,0.3)]">二十年後</h2>
+                <div class="h-px w-24 bg-gradient-to-r from-transparent via-gaslight to-transparent mx-auto my-4"></div>
+                <p class="text-sm text-slate-400 tracking-[0.3em] uppercase">O. Henry Detective File</p>
+            </div>
+            
+            <div id="chapter-list" class="flex flex-col gap-4 pb-12 w-full max-w-lg mx-auto">
+                <!-- 章節按鈕由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 畫面 2: 答題區 -->
+        <div id="screen-game" class="hidden flex-1 overflow-y-auto px-6 py-4 relative z-0 flex flex-col w-full max-w-xl mx-auto">
+            
+            <!-- 題目區：移除方框，改為電影字幕式的引導線排版 -->
+            <div id="question-card" class="mb-10 pl-6 quote-line py-2">
+                <h3 id="question-text" class="text-xl md:text-2xl font-serif font-medium leading-relaxed text-slate-100 drop-shadow-lg">
+                    <!-- 題目內容 -->
+                </h3>
+            </div>
+            
+            <!-- 選項區 -->
+            <div id="options-container" class="flex flex-col gap-3 flex-1 pb-10">
+                <!-- 選項由 JS 動態生成 -->
+            </div>
+        </div>
+
+        <!-- 畫面 3: 關卡結算 -->
+        <div id="screen-result" class="hidden flex-1 flex flex-col items-center justify-center p-6 text-center relative z-0">
+            <div class="w-full max-w-md slide-in flex flex-col items-center">
+                <!-- 印章視覺取代方框 -->
+                <div class="relative w-32 h-32 mb-6 flex items-center justify-center">
+                    <div class="absolute inset-0 rounded-full border-2 border-dashed border-gaslight/30 animate-[spin_20s_linear_infinite]"></div>
+                    <i class="fas fa-fingerprint text-6xl text-gaslightGlow drop-shadow-[0_0_15px_rgba(251,191,36,0.6)]"></i>
+                </div>
+                
+                <h2 class="text-4xl font-serif font-bold text-slate-100 mb-2 tracking-widest">調查結束</h2>
+                <div class="h-px w-full bg-gradient-to-r from-transparent via-white/20 to-transparent my-4"></div>
+                <p id="result-subtitle" class="text-slate-400 mb-8 text-base tracking-wider">表現優異，謎團逐漸解開。</p>
+                
+                <!-- 評分星星 -->
+                <div class="flex justify-center gap-6 mb-12 text-4xl">
+                    <i id="star-1" class="fas fa-star text-white/10 transition-all duration-700 transform scale-75"></i>
+                    <i id="star-2" class="fas fa-star text-white/10 transition-all duration-700 delay-150 transform scale-75"></i>
+                    <i id="star-3" class="fas fa-star text-white/10 transition-all duration-700 delay-300 transform scale-75"></i>
+                </div>
+
+                <!-- 操作按鈕 (只有底線的光影效果) -->
+                <div class="flex flex-col gap-4 w-full">
+                    <button id="btn-next-chapter" onclick="startNextChapter()" class="group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
+                        <span>繼續調查 <i class="fas fa-long-arrow-alt-right ml-2 group-hover:translate-x-2 transition-transform"></i></span>
+                        <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gaslight to-transparent group-hover:via-gaslightGlow"></div>
+                    </button>
+                    <button onclick="returnToMenu()" class="group relative w-full py-4 font-medium text-slate-400 hover:text-white transition-colors text-sm tracking-widest mt-2">
+                        <span>返回卷宗目錄</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // ==========================================
+        // 題庫資料庫 (QUESTIONS_DB)
+        // ==========================================
+        const QUESTIONS_DB = [
+            {
+                chapter: 1,
+                title: "第一章：寒夜赴約",
+                desc: "10:00 PM，紐約街頭",
+                questions: [
+                    { q: "故事開頭，紐約街頭的環境氛圍是如何描繪的？", o: ["寒風刺骨，下著毛毛雨，街上幾乎沒有行人", "繁華熱鬧，即使入夜依然車水馬龍", "大雪紛飛，能見度極低", "溫暖的夏夜，微風徐徐"], a: 0 },
+                    { q: "巡警在街上巡邏時，給人的第一印象是什麼？", o: ["漫不經心，只敷衍了事", "充滿威嚴且盡忠職守", "疲憊不堪，急著想下班", "鬼鬼祟祟，似乎在躲避什麼"], a: 1 },
+                    { q: "那名男子（鮑勃）為何獨自站在已經打烊的五金行暗處？", o: ["為了躲避警方的追捕", "準備進行一場非法的交易", "為了履行一個二十年前與摯友的約定", "因為下雨而暫時在那裡躲雨"], a: 2 },
+                    { q: "這家五金行在二十年前是什麼地方？", o: ["一間老舊的警察局", "「大喬」布雷迪餐廳", "當地最有名的火車站", "他們小時候就讀的學校"], a: 1 },
+                    { q: "從男子身上的配件（如碎鑽領帶夾、碎鑽懷錶）可以推論出什麼？", o: ["他偷了別人的財物", "他是一名珠寶商人", "他在西部的發展非常成功，累積了財富", "那些其實都是假貨，用來虛張聲勢"], a: 2 }
+                ]
+            },
+            {
+                chapter: 2,
+                title: "第二章：微光下的線索",
+                desc: "點燃雪茄的瞬間",
+                questions: [
+                    { q: "當巡警靠近時，男子的反應是什麼？", o: ["立刻主動開口解釋自己只是在等朋友", "嚇得拔腿就跑", "假裝沒看到，轉身背對巡警", "立刻掏出武器警告巡警退後"], a: 0 },
+                    { q: "男子點燃雪茄時的火柴微光，讓巡警注意到了什麼關鍵特徵？", o: ["他戴著一副墨鏡", "他穿著不合身的廉價西裝", "他有著蒼白的方下巴與右眉附近的疤痕", "他手裡緊緊握著一把槍"], a: 2 },
+                    { q: "根據鮑勃的說法，他的朋友吉米是個怎樣的人？", o: ["野心勃勃，總想發大財", "世界上最可靠、最忠實的好兄弟", "常常說謊、不守信用", "非常聰明但有些狡猾"], a: 1 },
+                    { q: "鮑勃與吉米當初為何會分道揚鑣？", o: ["鮑勃想去西部闖蕩發財，但吉米不願離開紐約", "兩人因為愛上同一個女人而決裂", "吉米考上警察後，看不起混幫派的鮑勃", "因為一場嚴重的商業糾紛"], a: 0 },
+                    { q: "聽完故事後，巡警離開前說了什麼？", o: ["警告他不准在這裡逗留太久", "要求檢查他的身分證件", "告訴他吉米早就搬走了", "詢問朋友若遲到是否還會等，並祝他好運"], a: 3 }
+                ]
+            },
+            {
+                chapter: 3,
+                title: "第三章：揭曉與抉擇",
+                desc: "命運的紙條",
+                questions: [
+                    { q: "故事中後來出現的第二名高大男子，他的真實身分是什麼？", o: ["真正的吉米·威爾斯", "路過的熱心市民", "芝加哥警方派來抓人的便衣警察", "鮑勃在西部的仇家"], a: 2 },
+                    { q: "鮑勃是在哪個瞬間，確認高大男子「不是」他的老友吉米？", o: ["那個人說錯了暗號", "當他們走到藥局明亮的燈光下，看清對方的鼻子時", "那個人拔出了手銬", "那個人不知道「大喬」餐廳的名字"], a: 1 },
+                    { q: "為什麼真正的吉米·威爾斯沒有親手逮捕鮑勃？", o: ["他沒有帶足夠的裝備", "他害怕鮑勃會開槍反擊", "發現通緝犯是昔日摯友，在職責與私情中掙扎，不忍親自下手", "因為紐約警方無權逮捕芝加哥的通緝犯"], a: 2 },
+                    { q: "鮑勃最後收到了一張紙條，這張紙條是誰留給他的？", o: ["第一位巡邏經過的警察（真正的吉米）", "那名便衣警察", "布雷迪餐廳的老闆", "他在西部的同夥"], a: 0 },
+                    { q: "《二十年後》這篇小說最核心的衝突是什麼？", o: ["貧富階級之間的對立與仇恨", "對朋友的私人情誼與對法律職責之間的道德兩難", "城鄉差距帶來的價值觀崩壞", "時間流逝會讓人忘卻一切承諾"], a: 1 }
+                ]
+            }
+        ];
+
+        // ==========================================
+        // 遊戲狀態與邏輯
+        // ==========================================
+        let maxUnlockedChapter = 1; 
+        let currentChapterObj = null;
+        let currentQuestions = [];
+        let currentQIndex = 0;
+        let mistakes = 0;
+        let isAnswering = false;
+
+        const screenMenu = document.getElementById('screen-menu');
+        const screenGame = document.getElementById('screen-game');
+        const screenResult = document.getElementById('screen-result');
+        const chapterList = document.getElementById('chapter-list');
+        const headerTitle = document.getElementById('header-title');
+        const btnBack = document.getElementById('btn-back');
+        const progressIndicator = document.getElementById('progress-indicator');
+        const questionText = document.getElementById('question-text');
+        const optionsContainer = document.getElementById('options-container');
+
+        function init() {
+            renderMenu();
+            btnBack.addEventListener('click', returnToMenu);
+        }
+
+        // 渲染主選單 (檔案夾切角風格)
+        function renderMenu() {
+            screenMenu.classList.remove('hidden');
+            screenGame.classList.add('hidden');
+            screenResult.classList.add('hidden');
+            btnBack.classList.add('hidden');
+            progressIndicator.classList.add('hidden');
+            headerTitle.textContent = "案件卷宗";
+
+            chapterList.innerHTML = '';
+            
+            QUESTIONS_DB.forEach((chap, index) => {
+                const isUnlocked = chap.chapter <= maxUnlockedChapter;
+                const delay = index * 0.1;
+                
+                const btn = document.createElement('button');
+                btn.className = `noir-folder slide-in w-full text-left p-5 flex items-center justify-between transition-all duration-300 ${
+                    isUnlocked 
+                    ? 'cursor-pointer hover:translate-x-3' 
+                    : 'locked cursor-not-allowed opacity-30 grayscale'
+                }`;
+                btn.style.animationDelay = `${delay}s`;
+                
+                btn.innerHTML = `
+                    <div class="flex items-center gap-5">
+                        <div class="font-serif font-black text-4xl opacity-20 mr-2 ${isUnlocked ? 'text-gaslight' : 'text-white'}">${String(chap.chapter).padStart(2, '0')}</div>
+                        <div>
+                            <div class="font-bold text-lg tracking-widest ${isUnlocked ? 'text-slate-100' : 'text-slate-500'}">${chap.title}</div>
+                            <div class="text-xs mt-1 tracking-widest ${isUnlocked ? 'text-gaslight/70' : 'text-slate-600'}">${chap.desc || '尚未解鎖'}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${isUnlocked ? '<i class="fas fa-search text-gaslight/30 text-2xl"></i>' : '<i class="fas fa-lock text-slate-700"></i>'}
+                    </div>
+                `;
+
+                if (isUnlocked) {
+                    btn.onclick = () => startChapter(chap.chapter);
+                }
+                
+                chapterList.appendChild(btn);
+            });
+        }
+
+        function startChapter(chapterNum) {
+            currentChapterObj = QUESTIONS_DB.find(c => c.chapter === chapterNum);
+            if (!currentChapterObj) return;
+
+            currentQuestions = [...currentChapterObj.questions].sort(() => Math.random() - 0.5);
+            currentQIndex = 0;
+            mistakes = 0;
+
+            screenMenu.classList.add('hidden');
+            screenGame.classList.remove('hidden');
+            btnBack.classList.remove('hidden');
+            progressIndicator.classList.remove('hidden');
+            
+            headerTitle.textContent = `FILE NO. ${String(currentChapterObj.chapter).padStart(2, '0')}`;
+            document.getElementById('total-q-num').textContent = currentQuestions.length;
+
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            isAnswering = false;
+            const qData = currentQuestions[currentQIndex];
+            document.getElementById('current-q-num').textContent = currentQIndex + 1;
+
+            const qCard = document.getElementById('question-card');
+            qCard.classList.remove('slide-in');
+            void qCard.offsetWidth; 
+            qCard.classList.add('slide-in');
+
+            questionText.textContent = qData.q;
+            optionsContainer.innerHTML = '';
+
+            // 選項改為無方框的漸層列 (option-row)
+            qData.o.forEach((optText, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-row w-full text-left py-4 px-4 font-medium flex items-center gap-4 slide-in group';
+                btn.style.animationDelay = `${index * 0.1}s`;
+                
+                const letter = String.fromCharCode(65 + index);
+                
+                // 圓形代號取代原本的方塊
+                btn.innerHTML = `
+                    <span class="w-8 h-8 rounded-full border border-white/20 bg-black/40 flex items-center justify-center font-bold text-xs text-slate-400 shrink-0 group-hover:text-gaslight group-hover:border-gaslight/50 transition-colors">${letter}</span>
+                    <span class="flex-1 text-sm md:text-base text-slate-300 group-hover:text-white transition-colors">${optText}</span>
+                    <i class="fas fa-check hidden status-icon status-correct text-xl"></i>
+                    <i class="fas fa-times hidden status-icon status-wrong text-xl"></i>
+                `;
+                
+                btn.onclick = (e) => handleAnswer(index, btn, e);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function handleAnswer(selectedIndex, btnElement, event) {
+            if (isAnswering) return;
+            isAnswering = true;
+
+            createRipple(event.clientX, event.clientY);
+
+            const qData = currentQuestions[currentQIndex];
+            const isCorrect = (selectedIndex === qData.a);
+            const allBtns = optionsContainer.querySelectorAll('button');
+
+            allBtns.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btnElement.classList.add('correct');
+                btnElement.querySelector('.status-correct').classList.remove('hidden');
+                
+                setTimeout(() => {
+                    currentQIndex++;
+                    if (currentQIndex < currentQuestions.length) {
+                        renderQuestion();
+                    } else {
+                        showResult();
+                    }
+                }, 1200);
+            } else {
+                mistakes++;
+                btnElement.classList.add('wrong', 'shake');
+                btnElement.querySelector('.status-wrong').classList.remove('hidden');
+                
+                const correctBtn = allBtns[qData.a];
+                correctBtn.classList.add('correct');
+                correctBtn.querySelector('.status-correct').classList.remove('hidden');
+
+                setTimeout(() => {
+                    currentQIndex++;
+                    if (currentQIndex < currentQuestions.length) {
+                        renderQuestion();
+                    } else {
+                        showResult();
+                    }
+                }, 2000);
+            }
+        }
+
+        function showResult() {
+            screenGame.classList.add('hidden');
+            screenResult.classList.remove('hidden');
+            progressIndicator.classList.add('hidden');
+            headerTitle.textContent = "結案報告";
+
+            let stars = 3;
+            if (mistakes >= 3) stars = 1;
+            else if (mistakes >= 1) stars = 2;
+
+            document.querySelectorAll('#screen-result .fa-star').forEach(el => {
+                el.classList.remove('text-gaslight', 'drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]', 'scale-110');
+                el.classList.add('text-white/10', 'scale-75');
+            });
+
+            const subtitle = document.getElementById('result-subtitle');
+            if (stars === 3) subtitle.textContent = "完美推理！所有細節都逃不過你的眼睛。";
+            else if (stars === 2) subtitle.textContent = "幹得好，探員。雖然有些小瑕疵，但不影響大局。";
+            else subtitle.textContent = "證據不足...你忽略了太多細節，必須重回現場調查。";
+
+            setTimeout(() => {
+                if (stars >= 1) lightUpStar('star-1');
+                setTimeout(() => {
+                    if (stars >= 2) lightUpStar('star-2');
+                    setTimeout(() => {
+                        if (stars >= 3) lightUpStar('star-3');
+                    }, 300);
+                }, 300);
+            }, 500);
+
+            const btnNext = document.getElementById('btn-next-chapter');
+            if (stars >= 2 && currentChapterObj.chapter === maxUnlockedChapter) {
+                maxUnlockedChapter++; 
+            }
+
+            const hasNextChapter = QUESTIONS_DB.some(c => c.chapter === currentChapterObj.chapter + 1);
+            if (hasNextChapter && stars >= 2) {
+                btnNext.classList.remove('hidden');
+            } else {
+                btnNext.classList.add('hidden');
+            }
+        }
+
+        function lightUpStar(id) {
+            const star = document.getElementById(id);
+            star.classList.replace('text-white/10', 'text-gaslight');
+            star.classList.replace('scale-75', 'scale-110');
+            star.classList.add('drop-shadow-[0_0_15px_rgba(251,191,36,0.8)]');
+        }
+
+        function returnToMenu() {
+            renderMenu();
+        }
+
+        function startNextChapter() {
+            if (currentChapterObj) {
+                startChapter(currentChapterObj.chapter + 1);
+            }
+        }
+
+        function createRipple(x, y) {
+            const ripple = document.createElement('div');
+            ripple.className = 'ripple';
+            ripple.style.left = `${x}px`;
+            ripple.style.top = `${y}px`;
+            
+            const size = 60 + Math.random() * 40;
+            ripple.style.width = `${size}px`;
+            ripple.style.height = `${size}px`;
+            
+            document.body.appendChild(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        }
+
+        window.onload = init;
+    </script>
+</body>
+</html>
