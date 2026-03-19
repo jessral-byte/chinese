@@ -261,15 +261,15 @@
 
                 <!-- 操作按鈕 (只有底線的光影效果) -->
                 <div class="flex flex-col gap-4 w-full">
-                    <button id="btn-next-chapter" onclick="startNextChapter()" class="hidden group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
-                        <span>繼續調查 <i class="fas fa-long-arrow-alt-right ml-2 group-hover:translate-x-2 transition-transform"></i></span>
+                    <button id="btn-next-chapter" onclick="returnToMenu()" class="hidden group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
+                        <span>解鎖新卷宗並返回 <i class="fas fa-folder-open ml-2 group-hover:scale-110 transition-transform"></i></span>
                         <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gaslight to-transparent group-hover:via-gaslightGlow"></div>
                     </button>
                     <button id="btn-reward" onclick="showReward()" class="hidden group relative w-full py-4 font-bold text-gaslight hover:text-gaslightGlow transition-colors text-lg tracking-widest">
                         <span>開啟最高機密檔案 <i class="fas fa-unlock-alt ml-2"></i></span>
                         <div class="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-gaslight to-transparent group-hover:via-gaslightGlow"></div>
                     </button>
-                    <button onclick="returnToMenu()" class="group relative w-full py-4 font-medium text-slate-400 hover:text-white transition-colors text-sm tracking-widest mt-2">
+                    <button id="btn-back-to-menu" onclick="returnToMenu()" class="group relative w-full py-4 font-medium text-slate-400 hover:text-white transition-colors text-sm tracking-widest mt-2">
                         <span>返回卷宗目錄</span>
                     </button>
                 </div>
@@ -305,7 +305,7 @@
 
     <script>
         // ==========================================
-        // 題庫資料庫 (QUESTIONS_DB)
+        // 題庫資料庫 (QUESTIONS_DB) - 擴充版與隨機抽取
         // ==========================================
         const QUESTIONS_DB = [
             {
@@ -317,7 +317,12 @@
                     { q: "巡警在街上巡邏時，給人的第一印象是什麼？", o: ["漫不經心，只敷衍了事", "充滿威嚴且盡忠職守", "疲憊不堪，急著想下班", "鬼鬼祟祟，似乎在躲避什麼"], a: 1 },
                     { q: "那名男子（鮑勃）為何獨自站在已經打烊的五金行暗處？", o: ["為了躲避警方的追捕", "準備進行一場非法的交易", "為了履行一個二十年前與摯友的約定", "因為下雨而暫時在那裡躲雨"], a: 2 },
                     { q: "這家五金行在二十年前是什麼地方？", o: ["一間老舊的警察局", "「大喬」布雷迪餐廳", "當地最有名的火車站", "他們小時候就讀的學校"], a: 1 },
-                    { q: "從男子身上的配件（如碎鑽領帶夾、碎鑽懷錶）可以推論出什麼？", o: ["他偷了別人的財物", "他是一名珠寶商人", "他在西部的發展非常成功，累積了財富", "那些其實都是假貨，用來虛張聲勢"], a: 2 }
+                    { q: "從男子身上的配件（如碎鑽領帶夾、碎鑽懷錶）可以推論出什麼？", o: ["他偷了別人的財物", "他是一名珠寶商人", "他在西部的發展非常成功，累積了財富", "那些其實都是假貨，用來虛張聲勢"], a: 2 },
+                    { q: "故事開頭的巡警（吉米）在街上巡邏時，他轉動警棍的動作顯示出他什麼樣的特質？", o: ["習慣性與自信", "緊張不安", "隨便敷衍", "準備隨時攻擊"], a: 0 },
+                    { q: "鮑勃提到他和吉米當年是在哪裡長大的？", o: ["紐約", "芝加哥", "西部", "波士頓"], a: 0 },
+                    { q: "鮑勃當年離開紐約去西部闖蕩時，幾歲？", o: ["18歲", "20歲", "24歲", "30歲"], a: 0 },
+                    { q: "鮑勃覺得吉米當年為什麼不願意一起去西部？", o: ["吉米覺得紐約是世界上唯一的地方", "吉米害怕西部的危險", "吉米沒有錢買車票", "吉米要照顧生病的家人"], a: 0 },
+                    { q: "根據鮑勃的說法，西部對他產生了什麼影響？", o: ["讓他變得敏銳且隨時準備應付競爭", "讓他變得更善良", "讓他失去了一切", "讓他忘記了過去的約定"], a: 0 }
                 ]
             },
             {
@@ -329,7 +334,11 @@
                     { q: "男子點燃雪茄時的火柴微光，讓巡警注意到了什麼關鍵特徵？", o: ["他戴著一副墨鏡", "他穿著不合身的廉價西裝", "他有著蒼白的方下巴與右眉附近的疤痕", "他手裡緊緊握著一把槍"], a: 2 },
                     { q: "根據鮑勃的說法，他的朋友吉米是個怎樣的人？", o: ["野心勃勃，總想發大財", "世界上最可靠、最忠實的好兄弟", "常常說謊、不守信用", "非常聰明但有些狡猾"], a: 1 },
                     { q: "鮑勃與吉米當初為何會分道揚鑣？", o: ["鮑勃想去西部闖蕩發財，但吉米不願離開紐約", "兩人因為愛上同一個女人而決裂", "吉米考上警察後，看不起混幫派的鮑勃", "因為一場嚴重的商業糾紛"], a: 0 },
-                    { q: "聽完故事後，巡警離開前說了什麼？", o: ["警告他不准在這裡逗留太久", "要求檢查他的身分證件", "告訴他吉米早就搬走了", "詢問朋友若遲到是否還會等，並祝他好運"], a: 3 }
+                    { q: "聽完故事後，巡警離開前說了什麼？", o: ["警告他不准在這裡逗留太久", "要求檢查他的身分證件", "告訴他吉米早就搬走了", "詢問朋友若遲到是否還會等，並祝他好運"], a: 3 },
+                    { q: "鮑勃告訴巡警，他這二十年來與吉米還有保持聯絡嗎？", o: ["前一兩年有，後來就斷了音訊", "一直都有寫信聯絡", "從來沒有聯絡過", "只有在節日才會通電話"], a: 0 },
+                    { q: "當巡警問鮑勃「在西部混得不錯吧？」時，鮑勃的語氣如何？", o: ["非常自豪且得意", "充滿後悔與悲傷", "謙虛且低調", "憤怒且防備"], a: 0 },
+                    { q: "鮑勃相信吉米今晚一定會出現的原因是什麼？", o: ["因為吉米是世界上最講信用的人", "因為吉米欠他一筆錢", "因為吉米在信中答應了他", "因為這是法律的規定"], a: 0 },
+                    { q: "巡警在聽完鮑勃的故事後，表現出的態度是？", o: ["禮貌的傾聽並祝福他", "嚴厲的盤問他的身分", "敷衍且急著離開", "激動地與他相認"], a: 0 }
                 ]
             },
             {
@@ -341,7 +350,11 @@
                     { q: "鮑勃是在哪個瞬間，確認高大男子「不是」他的老友吉米？", o: ["那個人說錯了暗號", "當他們走到藥局明亮的燈光下，看清對方的鼻子時", "那個人拔出了手銬", "那個人不知道「大喬」餐廳的名字"], a: 1 },
                     { q: "為什麼真正的吉米·威爾斯沒有親手逮捕鮑勃？", o: ["他沒有帶足夠的裝備", "他害怕鮑勃會開槍反擊", "發現通緝犯是昔日摯友，在職責與私情中掙扎，不忍親自下手", "因為紐約警方無權逮捕芝加哥的通緝犯"], a: 2 },
                     { q: "鮑勃最後收到了一張紙條，這張紙條是誰留給他的？", o: ["第一位巡邏經過的警察（真正的吉米）", "那名便衣警察", "布雷迪餐廳的老闆", "他在西部的同夥"], a: 0 },
-                    { q: "《二十年後》這篇小說最核心的衝突是什麼？", o: ["貧富階級之間的對立與仇恨", "對朋友的私人情誼與對法律職責之間的道德兩難", "城鄉差距帶來的價值觀崩壞", "時間流逝會讓人忘卻一切承諾"], a: 1 }
+                    { q: "《二十年後》這篇小說最核心的衝突是什麼？", o: ["貧富階級之間的對立與仇恨", "對朋友的私人情誼與對法律職責之間的道德兩難", "城鄉差距帶來的價值觀崩壞", "時間流逝會讓人忘卻一切承諾"], a: 1 },
+                    { q: "那位假扮吉米的便衣警察，是如何接近鮑勃的？", o: ["主動上前熱情地打招呼並詢問「你是鮑勃嗎？」", "從背後用槍指著他", "穿著警服要求他出示證件", "躲在暗處偷聽"], a: 0 },
+                    { q: "鮑勃剛開始為什麼會相信眼前的高大男子就是吉米？", o: ["因為巷子很暗，且對方知道他在等吉米", "因為對方拿出了當年的信物", "因為對方的聲音完全沒變", "因為對方長得和吉米一模一樣"], a: 0 },
+                    { q: "在吉米留下的紙條中，他提到自己是什麼時候認出鮑勃是通緝犯的？", o: ["當鮑勃點燃雪茄的火柴亮起時", "當鮑勃說出他在西部發大財時", "當他看到鮑勃手上的鑽石戒指時", "當他走進藥局的燈光下時"], a: 0 },
+                    { q: "吉米的抉擇展現了他哪一種人格特質？", o: ["堅守原則，但在法理中仍顧及人情", "懦弱怕事，不敢面對衝突", "為了升官發財不擇手段", "盲目重義氣，無視法律"], a: 0 }
                 ]
             }
         ];
@@ -421,7 +434,8 @@
             currentChapterObj = QUESTIONS_DB.find(c => c.chapter === chapterNum);
             if (!currentChapterObj) return;
 
-            currentQuestions = [...currentChapterObj.questions].sort(() => Math.random() - 0.5);
+            // ★打亂題目順序，並隨機抽取 5 題
+            currentQuestions = [...currentChapterObj.questions].sort(() => Math.random() - 0.5).slice(0, 5);
             currentQIndex = 0;
             mistakes = 0;
 
@@ -546,21 +560,26 @@
 
             const btnNext = document.getElementById('btn-next-chapter');
             const btnReward = document.getElementById('btn-reward');
+            const btnBackToMenu = document.getElementById('btn-back-to-menu');
             const isLastChapter = currentChapterObj.chapter === QUESTIONS_DB.length;
 
             btnNext.classList.add('hidden');
             btnReward.classList.add('hidden');
+            btnBackToMenu.classList.remove('hidden'); // 預設顯示一般返回按鈕
 
             if (stars >= 2) {
                 if (isLastChapter) {
-                    // 全破且達標，顯示獎勵按鈕
+                    // 全破且達標，顯示獎勵按鈕，隱藏一般返回
                     btnReward.classList.remove('hidden');
+                    btnBackToMenu.classList.add('hidden');
                 } else {
                     // 解鎖下一章
                     if (currentChapterObj.chapter === maxUnlockedChapter) {
                         maxUnlockedChapter++; 
                     }
+                    // 顯示解鎖並返回按鈕，隱藏一般返回
                     btnNext.classList.remove('hidden');
+                    btnBackToMenu.classList.add('hidden');
                 }
             }
         }
@@ -574,12 +593,6 @@
 
         function returnToMenu() {
             renderMenu();
-        }
-
-        function startNextChapter() {
-            if (currentChapterObj) {
-                startChapter(currentChapterObj.chapter + 1);
-            }
         }
 
         function showReward() {
